@@ -1,0 +1,6 @@
+include ':service'
+include ':service-compiler'
+include ':clients:client-android-apache-client'
+include ':clients:client-okhttp'
+include ':clients:client-okhttp3'
+include ':clients:client-url-connection'

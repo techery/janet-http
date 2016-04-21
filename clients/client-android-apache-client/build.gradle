@@ -1,0 +1,22 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'nebula.provided-base'
+apply from: rootProject.file('gradle/plugins/maven-simple.gradle')
+
+compileJava {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+}
+
+dependencies {
+    compile project(':service')
+    provided 'com.google.android:android:4.1.1.4'
+}
