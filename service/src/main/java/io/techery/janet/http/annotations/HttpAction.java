@@ -18,8 +18,6 @@ public @interface HttpAction {
 
     Type type() default Type.SIMPLE;
 
-    String[] headers() default {};
-
     enum Type {
         /**
          * No content-specific logic required.
