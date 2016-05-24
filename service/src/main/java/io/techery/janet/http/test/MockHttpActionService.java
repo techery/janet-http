@@ -20,7 +20,7 @@ import rx.functions.Func1;
 
 public final class MockHttpActionService extends ActionServiceWrapper {
 
-    public MockHttpActionService(List<Contract> contracts) {
+    private MockHttpActionService(List<Contract> contracts) {
         super(new HttpActionService("https://github.com/techery/janet", new MockClient(contracts), new MockConverter()));
     }
 
@@ -156,5 +156,7 @@ public final class MockHttpActionService extends ActionServiceWrapper {
 
     @Override protected <A> void onInterceptSuccess(ActionHolder<A> holder) {}
 
-    @Override protected <A> void onInterceptFail(ActionHolder<A> holder, JanetException e) {}
+    @Override protected <A> boolean onInterceptFail(ActionHolder<A> holder, JanetException e) {
+        return false;
+    }
 }

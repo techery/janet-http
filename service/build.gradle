@@ -7,6 +7,6 @@ compileJava {
 }
 
 dependencies {
-    compile 'com.github.techery:janet:1.0.1'
+    compile 'com.github.techery:janet:1.0.4'
     compile 'com.github.techery.janet-converters:base-converter:1.0.1'
 }
