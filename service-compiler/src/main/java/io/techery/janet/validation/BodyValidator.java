@@ -17,7 +17,7 @@ public class BodyValidator implements Validator<HttpActionClass> {
     @Override
     public Set<ValidationError> validate(HttpActionClass value) {
         Set<ValidationError> errors = new HashSet<ValidationError>();
-        List<Element> annotations = value.getAnnotatedElements(Body.class);
+        List<Element> annotations = value.getAllAnnotatedElements(Body.class);
         if (annotations.isEmpty()) return errors;
         Element element = annotations.get(0);
 

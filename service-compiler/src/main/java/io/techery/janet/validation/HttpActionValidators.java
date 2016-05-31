@@ -38,6 +38,7 @@ public class HttpActionValidators implements Validator<HttpActionClass> {
         validators = new ArrayList<Validator<HttpActionClass>>();
         //general rules
         validators.add(new FieldsModifiersValidator<HttpActionClass>());
+        validators.add(new ParentsValidator());
         validators.add(new PathValidator());
         validators.add(new BodyValidator());
         validators.add(new RequestTypeValidator(Body.class, HttpAction.Type.SIMPLE));

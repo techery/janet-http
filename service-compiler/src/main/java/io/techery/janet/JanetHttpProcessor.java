@@ -61,27 +61,42 @@ public class JanetHttpProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (annotations.isEmpty()) return true;
         ArrayList<HttpActionClass> actionClasses = new ArrayList<HttpActionClass>();
-        for (Element saltarElement : roundEnv.getElementsAnnotatedWith(HttpAction.class)) {
-            Set<ValidationError> errors = new HashSet<ValidationError>();
-            errors.addAll(classValidator.validate(saltarElement));
-            if (!errors.isEmpty()) {
-                printErrors(errors);
-                continue;
+        for (Element actionElement : roundEnv.getElementsAnnotatedWith(HttpAction.class)) {
+            TypeElement typeElement = (TypeElement) actionElement;
+            HttpActionClass actionClass = createActionClass(typeElement);
+            if (actionClass != null) {
+                Set<ValidationError> errors = httpActionValidators.validate(actionClass);
+                if (!errors.isEmpty()) {
+                    printErrors(errors);
+                }
+                actionClasses.add(actionClass);
             }
-            TypeElement typeElement = (TypeElement) saltarElement;
-            HttpActionClass actionClass = new HttpActionClass(elementUtils, typeElement);
-            errors.addAll(httpActionValidators.validate(actionClass));
-            if (!errors.isEmpty()) {
-                printErrors(errors);
-                continue;
-            }
-            actionClasses.add(actionClass);
         }
         if (!actionClasses.isEmpty()) {
             httpHelpersGenerator.generate(actionClasses);
         }
         helpersFactoryGenerator.generate(actionClasses);
         return true;
+    }
+
+    private HttpActionClass createActionClass(TypeElement actionElement) {
+        Set<ValidationError> errors = classValidator.validate(actionElement);
+        if (!errors.isEmpty()) {
+            printErrors(errors);
+            return null;
+        }
+        HttpActionClass parent = null;
+        if (actionElement.getSuperclass() != null) {
+            TypeElement parentElement = elementUtils.getTypeElement(actionElement.getSuperclass()
+                    .toString());
+            if (parentElement != null) {
+                HttpActionClass subClass = createActionClass(parentElement);
+                if (subClass != null && !subClass.getAllAnnotatedMembers().isEmpty()) {
+                    parent = subClass;
+                }
+            }
+        }
+        return new HttpActionClass(elementUtils, actionElement, parent);
     }
 
     private void printErrors(Collection<ValidationError> errors) {

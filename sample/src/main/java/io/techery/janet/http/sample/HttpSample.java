@@ -8,7 +8,7 @@ import io.techery.janet.Janet;
 import io.techery.janet.gson.GsonConverter;
 import io.techery.janet.helper.ActionStateSubscriber;
 import io.techery.janet.okhttp3.OkClient;
-import io.techery.janet.http.sample.action.BaseAction;
+import io.techery.janet.http.sample.action.base.BaseAction;
 import io.techery.janet.http.sample.action.TestProgressAction;
 import io.techery.janet.http.sample.action.UserReposAction;
 import io.techery.janet.http.sample.action.UsersAction;

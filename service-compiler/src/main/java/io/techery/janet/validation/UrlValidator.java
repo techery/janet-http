@@ -25,7 +25,7 @@ public class UrlValidator implements Validator<HttpActionClass> {
     }
 
     private static ValidationError validateInternal(HttpActionClass value) {
-        List<Element> annotatedElements = value.getAnnotatedElements(Url.class);
+        List<Element> annotatedElements = value.getAllAnnotatedElements(Url.class);
         if (!annotatedElements.isEmpty() && !StringUtils.isEmpty(value.getPath())) {
             return new ValidationError("@Url can't be used with specified path (@HttpAction.value())", annotatedElements
                     .get(0));

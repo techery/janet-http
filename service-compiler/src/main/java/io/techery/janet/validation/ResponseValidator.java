@@ -23,7 +23,7 @@ public class ResponseValidator implements Validator<HttpActionClass> {
     }
 
     private static ValidationError validateInternal(HttpActionClass value) {
-        List<Element> annotations = value.getAnnotatedElements(Response.class);
+        List<Element> annotations = value.getAllAnnotatedElements(Response.class);
         if (annotations.isEmpty()) return null;
         for (Element element : annotations) {
             Response annotation = element.getAnnotation(Response.class);

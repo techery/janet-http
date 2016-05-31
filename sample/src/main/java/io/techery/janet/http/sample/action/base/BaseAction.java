@@ -1,4 +1,4 @@
-package io.techery.janet.http.sample.action;
+package io.techery.janet.http.sample.action.base;
 
 
 import io.techery.janet.http.annotations.Status;

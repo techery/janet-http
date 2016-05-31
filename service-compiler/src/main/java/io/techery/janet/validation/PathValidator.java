@@ -29,8 +29,8 @@ public class PathValidator implements Validator<HttpActionClass> {
         TypeElement baseElement = value.getTypeElement();
         List<Element> pathAnnotations = value.getAnnotatedElements(Path.class);
 
-        if (value.getAnnotatedElements(Url.class).isEmpty()) {
-            if (StringUtils.isEmpty(value.getPath()) && value.getAnnotatedElements(Url.class).isEmpty()) {
+        if (value.getAllAnnotatedElements(Url.class).isEmpty()) {
+            if (StringUtils.isEmpty(value.getPath()) && value.getAllAnnotatedElements(Url.class).isEmpty()) {
                 errors.add(new ValidationError(String.format("Path in @%s for class %s is null or empty! That's not allowed", baseElement,
                         HttpAction.class.getSimpleName(), baseElement.getQualifiedName().toString()), baseElement));
             }
