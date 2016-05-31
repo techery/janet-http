@@ -1,8 +1,8 @@
 package io.techery.janet.http.sample.util;
 
+import io.techery.janet.ActionHolder;
 import io.techery.janet.ActionService;
 import io.techery.janet.ActionServiceWrapper;
-import io.techery.janet.ActionHolder;
 import io.techery.janet.JanetException;
 
 public class SampleLoggingService extends ActionServiceWrapper {
@@ -32,8 +32,9 @@ public class SampleLoggingService extends ActionServiceWrapper {
         System.out.println("onSuccess " + holder.action());
     }
 
-    @Override protected <A> void onInterceptFail(ActionHolder<A> holder, JanetException e) {
+    @Override protected <A> boolean onInterceptFail(ActionHolder<A> holder, JanetException e) {
         System.out.println("onFail " + holder.action());
         e.printStackTrace();
+        return false;
     }
 }
