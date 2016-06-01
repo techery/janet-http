@@ -1,12 +1,13 @@
 package io.techery.janet.http.sample.action;
 
 
-import io.techery.janet.http.sample.model.User;
 import java.util.ArrayList;
 
 import io.techery.janet.http.annotations.HttpAction;
 import io.techery.janet.http.annotations.Query;
 import io.techery.janet.http.annotations.Response;
+import io.techery.janet.http.sample.action.base.BaseAction;
+import io.techery.janet.http.sample.model.User;
 
 @HttpAction("/users")
 public class UsersAction extends BaseAction {

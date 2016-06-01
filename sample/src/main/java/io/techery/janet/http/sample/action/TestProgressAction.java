@@ -4,6 +4,7 @@ import io.techery.janet.http.annotations.HttpAction;
 import io.techery.janet.http.annotations.Part;
 import io.techery.janet.http.annotations.Query;
 import io.techery.janet.http.annotations.Response;
+import io.techery.janet.http.sample.action.base.BaseAction;
 
 @HttpAction(method = HttpAction.Method.POST, value = "/post", type = HttpAction.Type.MULTIPART)
 public class TestProgressAction extends BaseAction {

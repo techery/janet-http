@@ -1,5 +1,6 @@
 package io.techery.janet.http.sample.action;
 
+import io.techery.janet.http.sample.action.base.BaseAction;
 import io.techery.janet.http.sample.model.Repository;
 import java.util.ArrayList;
 
