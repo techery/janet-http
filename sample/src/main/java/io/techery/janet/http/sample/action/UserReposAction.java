@@ -1,15 +1,16 @@
 package io.techery.janet.http.sample.action;
 
-import io.techery.janet.http.sample.action.base.BaseAction;
-import io.techery.janet.http.sample.model.Repository;
+
 import java.util.ArrayList;
 
 import io.techery.janet.http.annotations.HttpAction;
 import io.techery.janet.http.annotations.Path;
 import io.techery.janet.http.annotations.Response;
+import io.techery.janet.http.sample.action.base.BaseAction;
+import io.techery.janet.http.sample.model.Repository;
 
 @HttpAction("/users/{login}/repos")
-public class UserReposAction extends BaseAction {
+public class UserReposAction extends BaseAction<ArrayList<Repository>> {
 
     @Path("login")
     final String login;
@@ -35,5 +36,9 @@ public class UserReposAction extends BaseAction {
                 "login='" + login + '\'' +
                 ", repositories=" + repositories +
                 '}';
+    }
+
+    @Override public ArrayList<Repository> getResponse() {
+        return repositories;
     }
 }

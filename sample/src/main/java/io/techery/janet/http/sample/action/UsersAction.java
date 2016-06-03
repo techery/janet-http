@@ -29,4 +29,8 @@ public class UsersAction extends BaseAction {
                 ", response=" + response +
                 '}';
     }
+
+    @Override public Object getResponse() {
+        return response;
+    }
 }
