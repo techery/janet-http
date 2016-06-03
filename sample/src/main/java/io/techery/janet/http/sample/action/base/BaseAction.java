@@ -8,7 +8,7 @@ import io.techery.janet.http.annotations.Status;
  * that action helper will be generated to fill the
  * annotated variables of super class too.
  */
-public class BaseAction {
+public abstract class BaseAction<T> extends ServerAction<T>{
 
     @Status
     boolean success;
