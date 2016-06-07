@@ -27,7 +27,7 @@ public class PathValidator implements Validator<HttpActionClass> {
     public Set<ValidationError> validate(HttpActionClass value) {
         Set<ValidationError> errors = new HashSet<ValidationError>();
         TypeElement baseElement = value.getTypeElement();
-        List<Element> pathAnnotations = value.getAnnotatedElements(Path.class);
+        List<Element> pathAnnotations = value.getAllAnnotatedElements(Path.class);
 
         if (value.getAllAnnotatedElements(Url.class).isEmpty()) {
             if (StringUtils.isEmpty(value.getPath()) && value.getAllAnnotatedElements(Url.class).isEmpty()) {
@@ -45,20 +45,22 @@ public class PathValidator implements Validator<HttpActionClass> {
             }
 
             //Validate that specified variable in path, has specified right annotated variable in class
-            Matcher matcher = PATH_PATTERN.matcher(value.getPath());
-            while (matcher.find()) {
-                boolean hasAnnotatedVariable = false;
-                String group = matcher.group(1);
-                for (Element element : pathAnnotations) {
-                    Path annotation = element.getAnnotation(Path.class);
-                    if (annotation.value().equals(group)) {
-                        hasAnnotatedVariable = true;
-                        break;
+            if (value.isAnnotatedClass()) {
+                Matcher matcher = PATH_PATTERN.matcher(value.getPath());
+                while (matcher.find()) {
+                    boolean hasAnnotatedVariable = false;
+                    String group = matcher.group(1);
+                    for (Element element : pathAnnotations) {
+                        Path annotation = element.getAnnotation(Path.class);
+                        if (annotation.value().equals(group)) {
+                            hasAnnotatedVariable = true;
+                            break;
+                        }
                     }
-                }
-                if (!hasAnnotatedVariable) {
-                    errors.add(new ValidationError(String.format("Annotate varaible with %s annotation with value \"%s\"", baseElement, Path.class
-                            .getName(), group), baseElement));
+                    if (!hasAnnotatedVariable) {
+                        errors.add(new ValidationError(String.format("Annotate variable with %s annotation with value \"%s\"", Path.class
+                                .getName(), group), baseElement));
+                    }
                 }
             }
         }
