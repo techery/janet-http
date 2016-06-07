@@ -17,6 +17,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import io.techery.janet.compiler.utils.validation.ClassValidator;
@@ -32,12 +33,14 @@ public class JanetHttpProcessor extends AbstractProcessor {
     private HttpActionValidators httpActionValidators;
     private HelpersFactoryGenerator helpersFactoryGenerator;
     private HttpHelpersGenerator httpHelpersGenerator;
+    private Types typesUtil;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         elementUtils = processingEnv.getElementUtils();
         messager = processingEnv.getMessager();
+        typesUtil = processingEnv.getTypeUtils();
         classValidator = new ClassValidator(HttpAction.class);
         httpActionValidators = new HttpActionValidators();
         Filer filer = processingEnv.getFiler();
@@ -87,8 +90,7 @@ public class JanetHttpProcessor extends AbstractProcessor {
         }
         HttpActionClass parent = null;
         if (actionElement.getSuperclass() != null) {
-            TypeElement parentElement = elementUtils.getTypeElement(actionElement.getSuperclass()
-                    .toString());
+            TypeElement parentElement = (TypeElement) typesUtil.asElement(actionElement.getSuperclass());
             if (parentElement != null) {
                 HttpActionClass subClass = createActionClass(parentElement);
                 if (subClass != null && !subClass.getAllAnnotatedMembers().isEmpty()) {

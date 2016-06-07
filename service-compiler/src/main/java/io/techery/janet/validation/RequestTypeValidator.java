@@ -27,8 +27,7 @@ public class RequestTypeValidator implements Validator<HttpActionClass> {
         Set<ValidationError> errors = new HashSet<ValidationError>();
         String bodyName = annotationClass.getSimpleName();
         List<HttpAction.Type> typesList = Arrays.asList(requestTypes);
-        for (Element element : value.getTypeElement().getEnclosedElements()) {
-            if (element.getAnnotation(annotationClass) == null) continue;
+        for (Element element : value.getAllAnnotatedElements(annotationClass)) {
             if (!typesList.contains(value.getRequestType())) {
                 errors.add(new ValidationError("It's possible to use %s only with %s request types ", element, bodyName, typesList
                         .toString()));

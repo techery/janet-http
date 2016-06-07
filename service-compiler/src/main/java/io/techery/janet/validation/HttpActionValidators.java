@@ -15,8 +15,6 @@ import io.techery.janet.HttpActionClass;
 import io.techery.janet.body.ActionBody;
 import io.techery.janet.body.BytesArrayBody;
 import io.techery.janet.body.FileBody;
-import io.techery.janet.compiler.utils.validation.AnnotationQuantityValidator;
-import io.techery.janet.compiler.utils.validation.AnnotationTypesValidator;
 import io.techery.janet.compiler.utils.validation.FieldsModifiersValidator;
 import io.techery.janet.compiler.utils.validation.ValidationError;
 import io.techery.janet.compiler.utils.validation.Validator;
@@ -47,13 +45,13 @@ public class HttpActionValidators implements Validator<HttpActionClass> {
         validators.add(new ResponseValidator());
         validators.add(new UrlValidator());
         //annotation rules
-        validators.add(new AnnotationQuantityValidator<HttpActionClass>(Body.class, 1));
-        validators.add(new AnnotationQuantityValidator<HttpActionClass>(Url.class, 1));
-        validators.add(new AnnotationTypesValidator<HttpActionClass>(ResponseHeader.class, String.class));
-        validators.add(new AnnotationTypesValidator<HttpActionClass>(Status.class, Boolean.class, Integer.class, Long.class, String.class, boolean.class, int.class, long.class));
-        validators.add(new AnnotationTypesValidator<HttpActionClass>(Part.class, File.class, byte[].class, String.class, ActionBody.class,
+        validators.add(new AnnotationQuantityValidator(Body.class, 1));
+        validators.add(new AnnotationQuantityValidator(Url.class, 1));
+        validators.add(new AnnotationTypesValidator(ResponseHeader.class, String.class));
+        validators.add(new AnnotationTypesValidator(Status.class, Boolean.class, Integer.class, Long.class, String.class, boolean.class, int.class, long.class));
+        validators.add(new AnnotationTypesValidator(Part.class, File.class, byte[].class, String.class, ActionBody.class,
                 BytesArrayBody.class, MultipartRequestBody.class, FormUrlEncodedRequestBody.class, FileBody.class));
-        validators.add(new AnnotationTypesValidator<HttpActionClass>(Url.class, new Type[]{String.class, URI.class},
+        validators.add(new AnnotationTypesValidator(Url.class, new Type[]{String.class, URI.class},
                 new TypeName[]{ClassName.get("android.net", "Uri"), ClassName.get("okhttp3", "HttpUrl"), ClassName.get("com.squareup.okhttp", "HttpUrl")}));
     }
 
