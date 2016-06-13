@@ -146,7 +146,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         for (Element element : actionClass.getAnnotatedElements(Field.class)) {
             Field annotation = element.getAnnotation(Field.class);
             CodeBlock codeBlock = CodeBlock.builder()
-                    .addStatement("requestBuilder.addField($S, String.valueOf(action.$L))", annotation.value(), element)
+                    .addStatement("requestBuilder.addField($S, action.$L)", annotation.value(), element)
                     .build();
             if (!TypeUtils.isPrimitive(element)) {
                 codeBlock = wrapFieldNotNull(codeBlock, element);
