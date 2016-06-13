@@ -189,23 +189,25 @@ public final class RequestBuilder {
     }
 
     public void addField(String name, Object value) {
-        if (value != null) { // Skip null values.
-            if (value instanceof Iterable) {
-                for (Object iterableValue : (Iterable<?>) value) {
-                    if (iterableValue != null) { // Skip null values.
-                        formBody.addField(name, iterableValue.toString());
-                    }
+        if (value == null) return;
+        //
+        if (value instanceof Iterable) {
+            name += "[]";
+            for (Object iterableValue : (Iterable<?>) value) {
+                if (iterableValue != null) { // Skip null values.
+                    formBody.addField(name, iterableValue.toString());
                 }
-            } else if (value.getClass().isArray()) {
-                for (int x = 0, arrayLength = Array.getLength(value); x < arrayLength; x++) {
-                    Object arrayValue = Array.get(value, x);
-                    if (arrayValue != null) { // Skip null values.
-                        formBody.addField(name, arrayValue.toString());
-                    }
-                }
-            } else {
-                formBody.addField(name, value.toString());
             }
+        } else if (value.getClass().isArray()) {
+            name += "[]";
+            for (int x = 0, arrayLength = Array.getLength(value); x < arrayLength; x++) {
+                Object arrayValue = Array.get(value, x);
+                if (arrayValue != null) { // Skip null values.
+                    formBody.addField(name, arrayValue.toString());
+                }
+            }
+        } else {
+            formBody.addField(name, String.valueOf(value));
         }
     }
 
