@@ -142,13 +142,17 @@ public final class RequestBuilder {
     }
 
     public void addQueryParam(String name, Object value, boolean encodeName, boolean encodeValue) {
+        if (value == null) return;
+        //
         if (value instanceof Iterable) {
+            name += "[]";
             for (Object iterableValue : (Iterable<?>) value) {
                 if (iterableValue != null) { // Skip null values
                     addQueryParam(name, iterableValue.toString(), encodeName, encodeValue);
                 }
             }
         } else if (value.getClass().isArray()) {
+            name += "[]";
             for (int x = 0, arrayLength = Array.getLength(value); x < arrayLength; x++) {
                 Object arrayValue = Array.get(value, x);
                 if (arrayValue != null) { // Skip null values
@@ -156,7 +160,7 @@ public final class RequestBuilder {
                 }
             }
         } else {
-            addQueryParam(name, value.toString(), encodeName, encodeValue);
+            addQueryParam(name, String.valueOf(value), encodeName, encodeValue);
         }
     }
 
