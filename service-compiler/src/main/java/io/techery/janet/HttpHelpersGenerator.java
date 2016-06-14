@@ -159,7 +159,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         for (Element element : actionClass.getAnnotatedElements(Query.class)) {
             Query annotation = element.getAnnotation(Query.class);
             CodeBlock codeBlock = CodeBlock.builder().addStatement(
-                    "requestBuilder.addQueryParam($S, String.valueOf(action.$L), $L, $L)",
+                    "requestBuilder.addQueryParam($S, action.$L, $L, $L)",
                     annotation.value(), element, annotation.encodeName(), annotation.encodeValue()
             ).build();
             if (!TypeUtils.isPrimitive(element)) {
