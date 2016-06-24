@@ -18,6 +18,7 @@ public class HttpActionClass extends ActionClass {
     private String path;
     private HttpAction.Type requestType;
     private HttpActionClass parent;
+    private boolean helperExists;
 
     public HttpActionClass(Elements elementUtils, TypeElement typeElement, HttpActionClass parent) {
         super(HttpAction.class, elementUtils, typeElement);
@@ -28,6 +29,7 @@ public class HttpActionClass extends ActionClass {
             path = annotation.value();
             requestType = annotation.type();
         }
+        helperExists = getHelperElement(elementUtils) != null;
     }
 
     public boolean isAnnotatedClass() {
@@ -52,6 +54,15 @@ public class HttpActionClass extends ActionClass {
 
     public ClassName getHelperName() {
         return ClassName.get(getPackageName(), getTypeElement().getSimpleName() + HttpHelpersGenerator.HELPER_SUFFIX);
+    }
+
+    private TypeElement getHelperElement(Elements elementUtils) {
+        ClassName helperName = getHelperName();
+        return elementUtils.getTypeElement(helperName.packageName() + "." + helperName.simpleName());
+    }
+
+    public boolean helperExists() {
+        return helperExists;
     }
 
     @Override public List<Element> getAnnotatedElements(Class annotationClass) {

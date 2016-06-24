@@ -52,9 +52,8 @@ import io.techery.janet.http.model.Response;
 final public class HttpActionService extends ActionService {
 
     final static String HELPERS_FACTORY_CLASS_SIMPLE_NAME = "HttpActionHelperFactory";
-    private final static String HELPERS_FACTORY_CLASS_NAME = Janet.class.getPackage()
-            .getName() + "." + HELPERS_FACTORY_CLASS_SIMPLE_NAME;
-    private final int PROGRESS_THRESHOLD = 5;
+    final static String HELPERS_FACTORY_CLASS_PACKAGE = HttpActionService.class.getPackage().getName() + ".http";
+    final static String HELPERS_FACTORY_CLASS_NAME = HELPERS_FACTORY_CLASS_PACKAGE + "." + HELPERS_FACTORY_CLASS_SIMPLE_NAME;
 
     private ActionHelperFactory actionHelperFactory;
     private final Map<Class, ActionHelper> actionHelperCache;
@@ -63,6 +62,8 @@ final public class HttpActionService extends ActionService {
     private final HttpClient client;
     private final Converter converter;
     private final String baseUrl;
+
+    private static final int PROGRESS_THRESHOLD = 5;
 
     public HttpActionService(String baseUrl, HttpClient client, Converter converter) {
         if (baseUrl == null) {
@@ -194,7 +195,7 @@ final public class HttpActionService extends ActionService {
         }
     }
 
-    interface ActionHelperFactory {
+    public interface ActionHelperFactory {
         ActionHelper make(Class actionClass);
     }
 
