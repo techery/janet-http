@@ -79,6 +79,7 @@ public class ExampleAction {
 * provides useful `HttpException` for failed requests;
 * supports action inheritance 
 * based on annotation processing
+* consider using javac option `'-Ajanet.http.factory.class.suffix=MyLib'` for api libraries
 
 ### Download
 ```groovy
