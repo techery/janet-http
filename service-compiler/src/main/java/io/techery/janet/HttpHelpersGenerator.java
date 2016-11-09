@@ -323,7 +323,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         for (Element element : actionClass.getAnnotatedElements(ResponseHeader.class)) {
             ResponseHeader annotation = element.getAnnotation(ResponseHeader.class);
             String fieldAddress = getFieldAddress(actionClass, element);
-            builder.addStatement(fieldAddress + " = $L.make($S)", element.toString(), PARENT_HELPER_FIELD_NAME, annotation
+            builder.addStatement(fieldAddress + " = $L.get($S)", element.toString(), PARENT_HELPER_FIELD_NAME, annotation
                     .value());
         }
     }
