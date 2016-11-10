@@ -13,7 +13,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -255,7 +254,6 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         }
         addStatusField(actionClass, builder);
         addResponses(actionClass, builder);
-        addBasicHeadersMap(actionClass, builder);
         addResponseHeaders(actionClass, builder);
         builder.addStatement("return action");
         return builder.build();
@@ -309,23 +307,20 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         }
     }
 
-    private void addBasicHeadersMap(HttpActionClass actionClass, MethodSpec.Builder builder) {
+    private void addResponseHeaders(HttpActionClass actionClass, MethodSpec.Builder builder) {
         if (actionClass.getAnnotatedElements(ResponseHeader.class).isEmpty()) {
             return;
         }
-        builder.addStatement("$T<$T, $T> $L = new $T<$T, $T>()", HashMap.class, String.class, String.class, PARENT_HELPER_FIELD_NAME, HashMap.class, String.class, String.class);
         builder.beginControlFlow("for ($T header : response.getHeaders())", Header.class);
-        builder.addStatement("$L.put(header.getName(), header.getValue())", PARENT_HELPER_FIELD_NAME);
-        builder.endControlFlow();
-    }
-
-    private void addResponseHeaders(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(ResponseHeader.class)) {
             ResponseHeader annotation = element.getAnnotation(ResponseHeader.class);
             String fieldAddress = getFieldAddress(actionClass, element);
-            builder.addStatement(fieldAddress + " = $L.make($S)", element.toString(), PARENT_HELPER_FIELD_NAME, annotation
-                    .value());
+            builder.beginControlFlow("if ($S.equals(header.getName()))", annotation.value());
+            builder.addStatement(fieldAddress + " = header.getName()", element.toString());
+            builder.endControlFlow();
         }
+        builder.endControlFlow();
+
     }
 
     private void addStatusField(HttpActionClass actionClass, MethodSpec.Builder builder) {
