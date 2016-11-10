@@ -316,7 +316,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
             ResponseHeader annotation = element.getAnnotation(ResponseHeader.class);
             String fieldAddress = getFieldAddress(actionClass, element);
             builder.beginControlFlow("if ($S.equals(header.getName()))", annotation.value());
-            builder.addStatement(fieldAddress + " = header.getName()", element.toString());
+            builder.addStatement(fieldAddress + " = header.getValue()", element.toString());
             builder.endControlFlow();
         }
         builder.endControlFlow();
