@@ -20,7 +20,9 @@ import io.techery.janet.http.annotations.Query;
 import io.techery.janet.http.annotations.RequestHeader;
 import io.techery.janet.http.annotations.ResponseHeader;
 import io.techery.janet.http.annotations.Status;
+import io.techery.janet.http.exception.HttpDeserializationException;
 import io.techery.janet.http.exception.HttpException;
+import io.techery.janet.http.exception.HttpSerializationException;
 import io.techery.janet.http.exception.HttpServiceException;
 import io.techery.janet.http.model.Request;
 import io.techery.janet.http.model.Response;
@@ -101,7 +103,7 @@ final public class HttpActionService extends ActionService {
         }
         putRunningAction(action);
         RequestBuilder builder = new RequestBuilder(baseUrl, converter);
-        Response response;
+        Response response = null;
         Request request = null;
         try {
             builder = helper.fillRequest(builder, action);
@@ -129,6 +131,14 @@ final public class HttpActionService extends ActionService {
             throwIfCanceled(action, request);
         } catch (CancelException e) {
             return;
+        } catch (ConverterException e) {
+            Throwable cause;
+            if (response != null) {
+                cause = new HttpDeserializationException(e, response);
+            } else {
+                cause = new HttpSerializationException(e, request);
+            }
+            throw new HttpServiceException(cause);
         } catch (Throwable e) {
             throw new HttpServiceException(e);
         } finally {
