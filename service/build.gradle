@@ -1,12 +1,15 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply from: rootProject.file('gradle/plugins/maven-simple.gradle')
 
 compileJava {
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = '1.6'
+    targetCompatibility = '1.6'
+}
+compileTestJava {
+    sourceCompatibility = '1.8'
 }
 
 dependencies {
-    compile 'com.github.techery:janet:1.0.4'
-    compile 'com.github.techery.janet-converters:base-converter:1.0.1'
+    compile 'com.github.techery:janet:1.0.7'
+    compile 'com.github.techery.janet-converters:base-converter:1.0.2'
 }
