@@ -1,12 +1,12 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply from: rootProject.file('gradle/plugins/maven-simple.gradle')
 
 compileJava {
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = '1.6'
+    targetCompatibility = '1.6'
 }
 
 dependencies {
-    compile project(':service')
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    api project(':service')
+    api 'com.squareup.okhttp3:okhttp:3.7.0'
 }

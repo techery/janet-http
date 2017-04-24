@@ -7,19 +7,27 @@ buildscript {
     }
     dependencies {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.+'
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.6"
+        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.10'
     }
 }
 
-apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'kotlin'
-apply plugin: "net.ltgt.apt"
+apply plugin: 'net.ltgt.apt'
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+mainClassName = 'io.techery.janet.http.sample.HttpSample'
 
 dependencies {
     compile project(':service')
     apt project(':service-compiler')
     compile project(':clients:client-okhttp3')
-    compile 'com.github.techery.janet-converters:gson:1.0.1'
+    compile 'com.github.techery.janet-converters:gson:1.0.2'
+    compile 'com.google.code.gson:gson:2.8.0'
     //kotlin
     compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.+'
     compile 'org.jetbrains.kotlin:kotlin-reflect:1.0.+'
