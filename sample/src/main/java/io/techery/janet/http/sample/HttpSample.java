@@ -30,7 +30,7 @@ import rx.Observable;
 
 public class HttpSample {
 
-    private static final String API_URL = "http://api.github.com";
+    private static final String API_URL = "https://api.github.com";
 
     public static void main(String... args) throws NoSuchAlgorithmException, KeyManagementException {
         OkClient httpClient = new OkClient(createTrustingOkHttpClient());

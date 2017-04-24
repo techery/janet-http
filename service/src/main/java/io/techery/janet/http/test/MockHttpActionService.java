@@ -1,6 +1,16 @@
 package io.techery.janet.http.test;
 
-import io.techery.janet.*;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import io.techery.janet.ActionHolder;
+import io.techery.janet.ActionService;
+import io.techery.janet.ActionServiceWrapper;
+import io.techery.janet.HttpActionService;
+import io.techery.janet.JanetException;
 import io.techery.janet.body.ActionBody;
 import io.techery.janet.converter.Converter;
 import io.techery.janet.converter.ConverterException;
@@ -9,12 +19,6 @@ import io.techery.janet.http.model.Header;
 import io.techery.janet.http.model.Request;
 import rx.functions.Func1;
 import rx.functions.Func2;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public final class MockHttpActionService extends ActionServiceWrapper {
 
@@ -29,7 +33,7 @@ public final class MockHttpActionService extends ActionServiceWrapper {
     public final static class Builder {
 
         private Func2<HttpClient, Converter, ActionService> actionServiceFunc = null;
-        private final List<Contract> contracts = new ArrayList<>();
+        private final List<Contract> contracts = new ArrayList<Contract>();
 
         public Builder bind(Response response, Func1<Request, Boolean> predicate) {
             if (response == null) {
