@@ -1,15 +1,6 @@
 package io.techery.janet.http.test;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import io.techery.janet.ActionHolder;
-import io.techery.janet.ActionServiceWrapper;
-import io.techery.janet.HttpActionService;
-import io.techery.janet.JanetException;
+import io.techery.janet.*;
 import io.techery.janet.body.ActionBody;
 import io.techery.janet.converter.Converter;
 import io.techery.janet.converter.ConverterException;
@@ -17,15 +8,28 @@ import io.techery.janet.http.HttpClient;
 import io.techery.janet.http.model.Header;
 import io.techery.janet.http.model.Request;
 import rx.functions.Func1;
+import rx.functions.Func2;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class MockHttpActionService extends ActionServiceWrapper {
 
     private MockHttpActionService(List<Contract> contracts) {
-        super(new HttpActionService("https://github.com/techery/janet", new MockClient(contracts), new MockConverter()));
+        this(new HttpActionService("https://github.com/techery/janet", new MockClient(contracts), new MockConverter()));
+    }
+
+    private MockHttpActionService(ActionService actionService) {
+        super(actionService);
     }
 
     public final static class Builder {
-        private final List<Contract> contracts = new ArrayList<Contract>();
+
+        private Func2<HttpClient, Converter, ActionService> actionServiceFunc = null;
+        private final List<Contract> contracts = new ArrayList<>();
 
         public Builder bind(Response response, Func1<Request, Boolean> predicate) {
             if (response == null) {
@@ -38,8 +42,25 @@ public final class MockHttpActionService extends ActionServiceWrapper {
             return this;
         }
 
+        /**
+         * In case if you want to build your testing around some real service (e.g. if it does some additional logic,
+         * sufficient for your needs) - instantiate and return it withing given Func2, passing forward two parameters:
+         * HttpClient and Converter
+         *
+         * @param actionServiceFunc func that will instantiate service to wrap in a predefined way
+         * @return current instance of Builder
+         */
+        public Builder wrapService(Func2<HttpClient, Converter, ActionService> actionServiceFunc) {
+            this.actionServiceFunc = actionServiceFunc;
+            return this;
+        }
+
         public MockHttpActionService build() {
-            return new MockHttpActionService(contracts);
+            if (actionServiceFunc == null) {
+                return new MockHttpActionService(contracts);
+            } else {
+                return new MockHttpActionService(actionServiceFunc.call(new MockClient(contracts), new MockConverter()));
+            }
         }
     }
 
