@@ -126,7 +126,7 @@ final public class HttpActionService extends ActionService {
             }
             action = helper.onResponse(action, response, converter);
             if (!response.isSuccessful()) {
-                throw new HttpException(response);
+                throw HttpException.forResponse(request, response);
             }
             throwIfCanceled(action, request);
         } catch (CancelException e) {
@@ -140,7 +140,7 @@ final public class HttpActionService extends ActionService {
             }
             throw new HttpServiceException(cause);
         } catch (Throwable e) {
-            throw new HttpServiceException(e);
+            throw new HttpServiceException(HttpException.forRequest(request, e));
         } finally {
             if (request != null) {
                 List<Request> requests = runningRequests.get(action);
