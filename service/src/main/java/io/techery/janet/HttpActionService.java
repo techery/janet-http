@@ -139,7 +139,9 @@ final public class HttpActionService extends ActionService {
                 cause = new HttpSerializationException(e, request);
             }
             throw new HttpServiceException(cause);
-        } catch (Throwable e) {
+        } catch (HttpException e) {
+            throw new HttpServiceException(e);
+        } catch (Throwable e) { // else is request related issue
             throw new HttpServiceException(HttpException.forRequest(request, e));
         } finally {
             if (request != null) {
