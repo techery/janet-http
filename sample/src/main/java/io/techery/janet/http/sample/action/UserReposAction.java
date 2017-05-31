@@ -12,33 +12,22 @@ import io.techery.janet.http.sample.model.Repository;
 @HttpAction("/users/{login}/repos")
 public class UserReposAction extends BaseAction<ArrayList<Repository>> {
 
-    @Path("login")
-    final String login;
+    @Path("login") final String login;
 
-    @Response
-    ArrayList<Repository> repositories;
+    @Response ArrayList<Repository> repositories;
 
     public UserReposAction(String login) {
         this.login = login;
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public ArrayList<Repository> getRepositories() {
+    @Override public ArrayList<Repository> getResponse() {
         return repositories;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "UserReposAction{" +
                 "login='" + login + '\'' +
                 ", repositories=" + repositories +
                 '}';
-    }
-
-    @Override public ArrayList<Repository> getResponse() {
-        return repositories;
     }
 }

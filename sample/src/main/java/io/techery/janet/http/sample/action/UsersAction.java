@@ -10,27 +10,20 @@ import io.techery.janet.http.sample.action.base.BaseAction;
 import io.techery.janet.http.sample.model.User;
 
 @HttpAction("/users")
-public class UsersAction extends BaseAction {
+public class UsersAction extends BaseAction<ArrayList<User>> {
 
-    @Query("since")
-    final int since = 0;
+    @Query("since") final int since = 0;
 
-    @Response
-    ArrayList<User> response;
+    @Response ArrayList<User> response;
 
-    public ArrayList<User> response() {
+    @Override public ArrayList<User> getResponse() {
         return response;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "UsersAction{" +
                 "since=" + since +
                 ", response=" + response +
                 '}';
-    }
-
-    @Override public Object getResponse() {
-        return response;
     }
 }

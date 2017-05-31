@@ -1,22 +1,35 @@
 package io.techery.janet.http.sample.action;
 
+import io.techery.janet.body.StringBody;
 import io.techery.janet.http.annotations.HttpAction;
 import io.techery.janet.http.annotations.Part;
 import io.techery.janet.http.annotations.Query;
 import io.techery.janet.http.annotations.Response;
+import io.techery.janet.http.model.MultipartRequestBody;
 import io.techery.janet.http.sample.action.base.BaseAction;
 
 @HttpAction(method = HttpAction.Method.POST, value = "/post", type = HttpAction.Type.MULTIPART)
 public class TestProgressAction extends BaseAction {
 
-    @Query("dir")
-    String name = "janet";
+    @Query("dir") final String dirParam = "janet";
 
-    @Part("name")
-    String part = CONTENT;
+    @Part("part_name1") final MultipartRequestBody.PartBody part1;
 
-    @Response
-    String response;
+    @Part("part_name2") final String part2;
+
+    @Part("part_name3") final String part3;
+
+    @Response String response;
+
+    public TestProgressAction() {
+        part1 = new MultipartRequestBody.PartBody.Builder()
+                .setBody(new StringBody(CONTENT))
+                .addHeader("filename", "content")
+                .addHeader("X-Custom-Header", "blablabla")
+                .build();
+        part2 = "some_string_data";
+        part3 = "another_string_data";
+    }
 
     public String getResponse() {
         return response;
@@ -24,8 +37,12 @@ public class TestProgressAction extends BaseAction {
 
     @Override public String toString() {
         return "TestProgressAction{" +
-                "response='" + response + '\'' +
-                '}';
+                "dirParam='" + dirParam + '\'' +
+                ", part1=" + part1 +
+                ", part2='" + part2 + '\'' +
+                ", part3='" + part3 + '\'' +
+                ", response='" + response + '\'' +
+                "} " + super.toString();
     }
 
     //the large string instead of a file

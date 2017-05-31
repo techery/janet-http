@@ -53,7 +53,7 @@ public class HttpSample {
 
         usersPipe.createObservable(new UsersAction())
                 .filter(state -> state.action.isSuccess())
-                .flatMap(state -> Observable.<User>from(state.action.response()).first())
+                .flatMap(state -> Observable.<User>from(state.action.getResponse()).first())
                 .flatMap(user -> userReposPipe.createObservable(new UserReposAction(user.getLogin())))
                 .subscribe(new ActionStateSubscriber<UserReposAction>()
                         .onSuccess(action -> System.out.println("repos request finished " + action))
@@ -62,7 +62,7 @@ public class HttpSample {
 
 
         janet = new Janet.Builder()
-                .addService(new SampleLoggingService(new HttpActionService("https://httpbin.org", httpClient, new GsonConverter(new Gson()))))
+                .addService(new SampleLoggingService(new HttpActionService("http://httpbin.org", httpClient, new GsonConverter(new Gson()))))
                 .build();
 
         janet.createPipe(TestProgressAction.class)
