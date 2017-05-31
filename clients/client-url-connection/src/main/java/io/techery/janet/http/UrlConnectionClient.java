@@ -1,6 +1,5 @@
 package io.techery.janet.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.techery.janet.body.ActionBody;
-import io.techery.janet.body.BytesArrayBody;
+import io.techery.janet.body.util.StreamUtil;
 import io.techery.janet.http.internal.ProgressOutputStream;
 import io.techery.janet.http.model.Header;
 import io.techery.janet.http.model.Request;
@@ -85,7 +84,7 @@ public class UrlConnectionClient implements HttpClient {
                 outputStream = connection.getOutputStream();
                 connection.setChunkedStreamingMode(CHUNK_SIZE);
             }
-            body.writeTo(outputStream);
+            body.writeContentTo(outputStream);
         }
     }
 
@@ -101,28 +100,35 @@ public class UrlConnectionClient implements HttpClient {
                 headers.add(new Header(name, value));
             }
         }
-
-        String mimeType = connection.getContentType();
-        InputStream stream;
-        if (status >= 400) {
-            stream = connection.getErrorStream();
-        } else {
-            stream = connection.getInputStream();
-        }
-        ActionBody responseBody = new BytesArrayBody(mimeType, streamToBytes(stream));
+        ActionBody responseBody = new ResponseActionBody(connection);
         return new Response(connection.getURL().toString(), status, reason, headers, responseBody);
     }
 
-    public static byte[] streamToBytes(InputStream stream) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        if (stream != null) {
-            byte[] buf = new byte[BUFFER_SIZE];
-            int r;
-            while ((r = stream.read(buf)) != -1) {
-                baos.write(buf, 0, r);
+    private static class ResponseActionBody extends ActionBody {
+
+        private HttpURLConnection body;
+
+        public ResponseActionBody(HttpURLConnection body) {
+            super(body.getContentType());
+            this.body = body;
+        }
+
+        @Override public long length() {
+            return body.getContentLengthLong();
+        }
+
+        @Override public InputStream getContent() throws IOException {
+            int status = body.getResponseCode();
+            if (status >= 200 && status < 300) {
+                return body.getInputStream();
+            } else {
+                return body.getErrorStream();
             }
         }
-        return baos.toByteArray();
+
+        @Override public void writeContentTo(OutputStream os) throws IOException {
+            StreamUtil.writeAll(getContent(), os, StreamUtil.NETWORK_CHUNK_SIZE);
+        }
     }
 
 }

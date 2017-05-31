@@ -1,7 +1,5 @@
 package io.techery.janet;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
@@ -16,6 +14,7 @@ import io.techery.janet.converter.Converter;
 import io.techery.janet.http.annotations.HttpAction;
 import io.techery.janet.http.model.FormUrlEncodedRequestBody;
 import io.techery.janet.http.model.Header;
+import io.techery.janet.http.model.MimeOverridingTypedOutput;
 import io.techery.janet.http.model.MultipartRequestBody;
 import io.techery.janet.http.model.Request;
 
@@ -215,7 +214,7 @@ public final class RequestBuilder {
         }
     }
 
-    public void addPart(String name, ActionBody body, String transferEncoding) {
+    public void addPart(String name, String transferEncoding, MultipartRequestBody.PartBody body) {
         multipartBody.addPart(name, transferEncoding, body);
     }
 
@@ -267,39 +266,4 @@ public final class RequestBuilder {
         return new Request(requestMethod.name(), url.toString(), headers, body);
     }
 
-    private static class MimeOverridingTypedOutput extends ActionBody {
-        private final ActionBody delegate;
-        private final String mimeType;
-
-        MimeOverridingTypedOutput(ActionBody delegate, String mimeType) {
-            super(mimeType);
-            this.delegate = delegate;
-            this.mimeType = mimeType;
-        }
-
-        @Override
-        public byte[] getContent() throws IOException {
-            return delegate.getContent();
-        }
-
-        @Override
-        public String fileName() {
-            return delegate.fileName();
-        }
-
-        @Override
-        public String mimeType() {
-            return mimeType;
-        }
-
-        @Override
-        public long length() {
-            return delegate.length();
-        }
-
-        @Override
-        public void writeTo(OutputStream out) throws IOException {
-            delegate.writeTo(out);
-        }
-    }
 }

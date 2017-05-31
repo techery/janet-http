@@ -49,7 +49,7 @@ public class HttpActionValidators implements Validator<HttpActionClass> {
         validators.add(new AnnotationQuantityValidator(Url.class, 1));
         validators.add(new AnnotationTypesValidator(ResponseHeader.class, String.class));
         validators.add(new AnnotationTypesValidator(Status.class, Boolean.class, Integer.class, Long.class, String.class, boolean.class, int.class, long.class));
-        validators.add(new AnnotationTypesValidator(Part.class, File.class, byte[].class, String.class, ActionBody.class,
+        validators.add(new AnnotationTypesValidator(Part.class, MultipartRequestBody.PartBody.class, File.class, byte[].class, String.class, ActionBody.class,
                 BytesArrayBody.class, MultipartRequestBody.class, FormUrlEncodedRequestBody.class, FileBody.class));
         validators.add(new AnnotationTypesValidator(Url.class, new Type[]{String.class, URI.class},
                 new TypeName[]{ClassName.get("android.net", "Uri"), ClassName.get("okhttp3", "HttpUrl"), ClassName.get("com.squareup.okhttp", "HttpUrl")}));

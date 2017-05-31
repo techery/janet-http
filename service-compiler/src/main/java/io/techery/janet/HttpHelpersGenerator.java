@@ -12,6 +12,7 @@ import com.squareup.javapoet.TypeVariableName;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import javax.lang.model.element.TypeParameterElement;
 import io.techery.janet.body.ActionBody;
 import io.techery.janet.body.BytesArrayBody;
 import io.techery.janet.body.FileBody;
+import io.techery.janet.body.util.StreamUtil;
 import io.techery.janet.compiler.utils.Generator;
 import io.techery.janet.compiler.utils.TypeUtils;
 import io.techery.janet.converter.Converter;
@@ -41,6 +43,7 @@ import io.techery.janet.http.annotations.ResponseHeader;
 import io.techery.janet.http.annotations.Status;
 import io.techery.janet.http.annotations.Url;
 import io.techery.janet.http.model.Header;
+import io.techery.janet.http.model.MultipartRequestBody;
 import io.techery.janet.http.model.Response;
 import io.techery.janet.internal.TypeToken;
 
@@ -215,27 +218,38 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
                 partName = name;
             }
             String encode = part.encoding();
-            String httpBodyName = "httpBody";
+
+            String bodyFieldName = "partBody";
             CodeBlock.Builder codeBlock = CodeBlock.builder();
-            if (TypeUtils.equalType(element, File.class)) {
-                codeBlock.addStatement("$T $L = null", ActionBody.class, httpBodyName);
-                codeBlock
-                        .beginControlFlow("try")
-                        .addStatement("$L = new $T($S, action.$L)", httpBodyName, FileBody.class, encode, name)
-                        .nextControlFlow("catch($T e)", Throwable.class)
-                        .addStatement("throw $T.forSerialization(e)", ConverterException.class)
-                        .endControlFlow();
-            } else if (TypeUtils.equalType(element, byte[].class)) {
-                codeBlock.addStatement("$T $L = new $T($S, action.$L)",
-                        ActionBody.class, httpBodyName, BytesArrayBody.class, encode, name);
-            } else if (TypeUtils.equalType(element, String.class)) {
-                codeBlock.addStatement("$T $L = new $T($S, action.$L.getBytes())",
-                        ActionBody.class, httpBodyName, BytesArrayBody.class, encode, name);
-            } else {
+            if (TypeUtils.equalType(element, MultipartRequestBody.PartBody.class)) {
                 codeBlock.addStatement("$T $L = action.$L",
-                        ActionBody.class, httpBodyName, name);
+                        MultipartRequestBody.PartBody.class, bodyFieldName, element
+                );
+            } else {
+                String actionBodyFieldName = "actionBody";
+                if (TypeUtils.equalType(element, File.class)) {
+                    codeBlock.addStatement("$T $L = null", ActionBody.class, actionBodyFieldName);
+                    codeBlock
+                            .beginControlFlow("try")
+                            .addStatement("$L = new $T($S, action.$L)", actionBodyFieldName, FileBody.class, encode, name)
+                            .nextControlFlow("catch($T e)", Throwable.class)
+                            .addStatement("throw $T.forSerialization(e)", ConverterException.class)
+                            .endControlFlow();
+                } else if (TypeUtils.equalType(element, byte[].class)) {
+                    codeBlock.addStatement("$T $L = new $T($S, action.$L)",
+                            ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, name);
+                } else if (TypeUtils.equalType(element, String.class)) {
+                    codeBlock.addStatement("$T $L = new $T($S, action.$L.getBytes())",
+                            ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, name);
+                } else {
+                    codeBlock.addStatement("$T $L = action.$L",
+                            ActionBody.class, actionBodyFieldName, name);
+                }
+                codeBlock.addStatement("$T $L = new $T().setBody($L).build()",
+                        MultipartRequestBody.PartBody.class, bodyFieldName, MultipartRequestBody.PartBody.Builder.class, actionBodyFieldName
+                );
             }
-            codeBlock.addStatement("requestBuilder.addPart($S, $L, $S)", partName, httpBodyName, encode);
+            codeBlock.addStatement("requestBuilder.addPart($S, $S, $L)", partName, encode, bodyFieldName);
             builder.addCode(wrapFieldNotNull(codeBlock.build(), element));
         }
     }
@@ -300,7 +314,12 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         if (TypeUtils.equalType(element, ActionBody.class)) {
             builder.addStatement(fieldAddress + " = response.getBody()", element);
         } else if (TypeUtils.equalType(element, String.class)) {
-            builder.addStatement(fieldAddress + " = response.getBody().toString()", element);
+            builder
+                    .beginControlFlow("try")
+                    .addStatement(fieldAddress + " = $T.convertToString(response.getBody().getContent())", element, StreamUtil.class)
+                    .nextControlFlow("catch($T e)", IOException.class)
+                    .addStatement("throw $T.forDeserialization(e)", ConverterException.class)
+                    .endControlFlow();
         } else {
             builder.addStatement(fieldAddress + " = ($T) converter.fromBody(response.getBody(), new $T<$T>(){}.getType())",
                     element, element.asType(), TypeToken.class, element.asType());

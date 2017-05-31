@@ -1,6 +1,9 @@
 package io.techery.janet.http.test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,8 +121,15 @@ public final class MockHttpActionService extends ActionServiceWrapper {
             super(null);
         }
 
-        @Override public byte[] getContent() throws IOException {
-            return new byte[0];
+        @Override public long length() {
+            return 0L;
+        }
+
+        @Override public InputStream getContent() throws IOException {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+
+        @Override public void writeContentTo(OutputStream os) throws IOException {
         }
     }
 
