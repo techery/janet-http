@@ -12,5 +12,6 @@ compileTestJava {
 
 dependencies {
     compile 'com.github.techery:janet:1.0.7'
-    compile 'com.github.techery.janet-converters:base-converter:1.0.2'
+    compile 'com.github.techery.janet-converters:base-body:1.1.0'
+    compile 'com.github.techery.janet-converters:base-converter:1.1.0'
 }

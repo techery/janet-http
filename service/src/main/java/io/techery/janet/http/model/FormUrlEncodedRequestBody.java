@@ -1,16 +1,23 @@
 package io.techery.janet.http.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 
 import io.techery.janet.body.ActionBody;
+import io.techery.janet.body.util.StreamUtil;
 
 public final class FormUrlEncodedRequestBody extends ActionBody {
+
+    private static final String MIMETYPE = "application/x-www-form-urlencoded; charset=UTF-8";
+
     final ByteArrayOutputStream content = new ByteArrayOutputStream();
 
     public FormUrlEncodedRequestBody() {
-        super(null);
+        super(MIMETYPE);
     }
 
     public void addField(String name, String value) {
@@ -35,13 +42,16 @@ public final class FormUrlEncodedRequestBody extends ActionBody {
         }
     }
 
-    @Override
-    public String mimeType() {
-        return "application/x-www-form-urlencoded; charset=UTF-8";
+    @Override public long length() {
+        return content.size();
     }
 
-    @Override
-    public byte[] getContent() {
-        return content.toByteArray();
+    @Override public InputStream getContent() throws IOException {
+        return new ByteArrayInputStream(content.toByteArray());
     }
+
+    @Override public void writeContentTo(OutputStream os) throws IOException {
+        StreamUtil.writeAll(getContent(), os, StreamUtil.NETWORK_CHUNK_SIZE);
+    }
+
 }

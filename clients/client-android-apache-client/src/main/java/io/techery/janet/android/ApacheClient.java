@@ -13,10 +13,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.techery.janet.body.ActionBody;
-import io.techery.janet.body.BytesArrayBody;
 import io.techery.janet.http.internal.ProgressOutputStream;
 import io.techery.janet.http.model.Header;
 import io.techery.janet.http.model.Request;
@@ -96,11 +92,10 @@ public class ApacheClient implements io.techery.janet.http.HttpClient {
             headers.add(new Header(name, value));
         }
 
-        BytesArrayBody body = null;
+        ActionBody body = null;
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            byte[] bytes = EntityUtils.toByteArray(entity);
-            body = new BytesArrayBody(contentType, bytes);
+            body = new ResponseActionBody(entity);
         }
 
         return new Response(url, status, reason, headers, body);
@@ -170,14 +165,12 @@ public class ApacheClient implements io.techery.janet.http.HttpClient {
 
         @Override
         public InputStream getContent() throws IOException {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            requestBody.writeTo(out);
-            return new ByteArrayInputStream(out.toByteArray());
+            return requestBody.getContent();
         }
 
         @Override
         public void writeTo(OutputStream out) throws IOException {
-            requestBody.writeTo(new ProgressOutputStream(out, new ProgressOutputStream.ProgressListener() {
+            requestBody.writeContentTo(new ProgressOutputStream(out, new ProgressOutputStream.ProgressListener() {
                 @Override public void onProgressChanged(long bytesWritten) {
                     requestCallback.onProgress((int) ((bytesWritten * 100) / getContentLength()));
                 }
@@ -187,6 +180,28 @@ public class ApacheClient implements io.techery.janet.http.HttpClient {
         @Override
         public boolean isStreaming() {
             return false;
+        }
+    }
+
+    private static class ResponseActionBody extends ActionBody {
+
+        private HttpEntity body;
+
+        public ResponseActionBody(HttpEntity body) {
+            super(body.getContentType() == null ? null : body.getContentType().getValue());
+            this.body = body;
+        }
+
+        @Override public long length() {
+            return body.getContentLength();
+        }
+
+        @Override public InputStream getContent() throws IOException {
+            return body.getContent();
+        }
+
+        @Override public void writeContentTo(OutputStream os) throws IOException {
+            body.writeTo(os);
         }
     }
 

@@ -27,13 +27,9 @@ fun main(args: Array<String>) {
             .subscribe({ println("received $it") }) { println(it) }
 
     usersPipe.createObservable(UsersAction())
-            .subscribe();
-
-    usersPipe.createObservable(UsersAction())
             .filter { it.action.isSuccess }
-            .flatMap { Observable.from(it.action.response()).first() }
-            .flatMap { userReposPipe.createObservable(
-                UserReposAction(it.getLogin())) }
+            .flatMap { Observable.from(it.action.getResponse()).first() }
+            .flatMap { userReposPipe.createObservable(UserReposAction(it.getLogin())) }
             .subscribe(ActionStateSubscriber<UserReposAction>()
                     .onSuccess { println("repos request finished $it") }
                     .onFail { a, t -> println("repos request exception $t") }

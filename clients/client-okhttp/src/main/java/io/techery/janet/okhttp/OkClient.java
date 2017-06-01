@@ -4,23 +4,26 @@ import com.squareup.okhttp.Call;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.ResponseBody;
 import com.squareup.okhttp.internal.Util;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.techery.janet.body.ActionBody;
-import io.techery.janet.body.BytesArrayBody;
+import io.techery.janet.body.util.StreamUtil;
 import io.techery.janet.http.HttpClient;
+import io.techery.janet.http.internal.ProgressOutputStream;
+import io.techery.janet.http.internal.ProgressOutputStream.ProgressListener;
 import io.techery.janet.http.model.Header;
 import io.techery.janet.http.model.Request;
 import io.techery.janet.http.model.Response;
 import io.techery.janet.http.utils.RequestUtils;
 import okio.BufferedSink;
-import okio.Okio;
-import okio.Source;
 
 public class OkClient implements HttpClient {
 
@@ -67,12 +70,7 @@ public class OkClient implements HttpClient {
         }
         ActionBody responseBody = null;
         if (okResponse.body() != null) {
-            String contentType = null;
-            MediaType mediaType = okResponse.body().contentType();
-            if (mediaType != null) {
-                contentType = mediaType.toString();
-            }
-            responseBody = new BytesArrayBody(contentType, okResponse.body().bytes());
+            responseBody = new ResponseActionBody(okResponse.body());
         }
         return new Response(
                 okResponse.request().url().toString(),
@@ -103,33 +101,44 @@ public class OkClient implements HttpClient {
         }
 
         @Override public void writeTo(BufferedSink sink) throws IOException {
-            Source source = null;
+            OutputStream stream = new ProgressOutputStream(sink.outputStream(), listener, HttpClient.PROGRESS_THRESHOLD);
             try {
-                source = Okio.source(actionBody.in());
-                long progress = 0;
-                long lastProgress = 0;
-                long read;
-                while ((read = source.read(sink.buffer(), HttpClient.PROGRESS_THRESHOLD)) != -1) {
-                    progress += read;
-                    sink.flush();
-                    if (progress > lastProgress) {
-                        this.listener.onProgressChanged(progress);
-                        lastProgress = progress;
-                    }
-                }
+                actionBody.writeContentTo(stream);
+                stream.flush();
             } finally {
-                Util.closeQuietly(source);
+                Util.closeQuietly(stream);
             }
         }
 
         @Override public long contentLength() throws IOException {
             return actionBody.length();
         }
-
     }
 
-    private interface ProgressListener {
-        void onProgressChanged(long bytesWritten);
+    private static class ResponseActionBody extends ActionBody {
+
+        private ResponseBody body;
+
+        public ResponseActionBody(ResponseBody body) {
+            super(body.contentType() == null ? null : body.contentType().toString());
+            this.body = body;
+        }
+
+        @Override public long length() throws RuntimeException {
+            try {
+                return body.contentLength();
+            } catch (IOException e) {
+                throw new RuntimeException("Can't get content length from response", e);
+            }
+        }
+
+        @Override public InputStream getContent() throws IOException {
+            return body.byteStream();
+        }
+
+        @Override public void writeContentTo(OutputStream os) throws IOException {
+            StreamUtil.writeAll(body.byteStream(), os, StreamUtil.NETWORK_CHUNK_SIZE);
+        }
     }
 
 }
