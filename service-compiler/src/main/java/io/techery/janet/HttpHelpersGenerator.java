@@ -227,27 +227,31 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
                 );
             } else {
                 String actionBodyFieldName = "actionBody";
-                if (TypeUtils.equalType(element, File.class)) {
-                    codeBlock.addStatement("$T $L = null", ActionBody.class, actionBodyFieldName);
-                    codeBlock
-                            .beginControlFlow("try")
-                            .addStatement("$L = new $T($S, action.$L)", actionBodyFieldName, FileBody.class, encode, name)
-                            .nextControlFlow("catch($T e)", Throwable.class)
-                            .addStatement("throw $T.forSerialization(e)", ConverterException.class)
-                            .endControlFlow();
-                } else if (TypeUtils.equalType(element, byte[].class)) {
+                CodeBlock headerBlock = null;
+                if (TypeUtils.equalType(element, byte[].class)) {
                     codeBlock.addStatement("$T $L = new $T($S, action.$L)",
                             ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, name);
                 } else if (TypeUtils.equalType(element, String.class)) {
                     codeBlock.addStatement("$T $L = new $T($S, action.$L.getBytes())",
                             ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, name);
+                } else if (TypeUtils.equalType(element, File.class)) {
+                    codeBlock.addStatement("$T $L = new $T($S, action.$L)", ActionBody.class, actionBodyFieldName, FileBody.class, encode, name);
+                    headerBlock = CodeBlock.builder()
+                            .add(".addHeader($S, action.$L.getName())", "filename", name)
+                            .build();
+                } else if (TypeUtils.equalType(element, FileBody.class)) {
+                    codeBlock.addStatement("$T $L = action.$L", ActionBody.class, actionBodyFieldName, name);
+                    headerBlock = CodeBlock.builder()
+                            .add(".addHeader($S, action.$L.getFile().getName())", "filename", name)
+                            .build();
                 } else {
-                    codeBlock.addStatement("$T $L = action.$L",
-                            ActionBody.class, actionBodyFieldName, name);
+                    codeBlock.addStatement("$T $L = action.$L", ActionBody.class, actionBodyFieldName, name);
                 }
-                codeBlock.addStatement("$T $L = new $T().setBody($L).build()",
-                        MultipartRequestBody.PartBody.class, bodyFieldName, MultipartRequestBody.PartBody.Builder.class, actionBodyFieldName
-                );
+                codeBlock.add("$[");
+                codeBlock.add("$T $L = new $T().setBody($L)", MultipartRequestBody.PartBody.class, bodyFieldName, MultipartRequestBody.PartBody.Builder.class, actionBodyFieldName);
+                if (headerBlock != null) codeBlock.add(headerBlock);
+                codeBlock.add(".build()");
+                codeBlock.add(";\n$]");
             }
             codeBlock.addStatement("requestBuilder.addPart($S, $S, $L)", partName, encode, bodyFieldName);
             builder.addCode(wrapFieldNotNull(codeBlock.build(), element));
