@@ -27,7 +27,7 @@ dependencies {
     compile project(':service')
     apt project(':service-compiler')
     compile project(':clients:client-okhttp3')
-    compile 'com.github.techery.janet-converters:gson:1.1.0'
+    compile 'com.github.techery.janet-converters:gson:1.1.1'
     compile 'com.google.code.gson:gson:2.8.0'
     //kotlin
     compile 'org.jetbrains.kotlin:kotlin-stdlib:1.1.2'
