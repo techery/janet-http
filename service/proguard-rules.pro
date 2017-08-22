@@ -1,5 +1,5 @@
 ## Keep Generated HttpActionHelperFactory
--keep class * implements io.techery.janet.HttpActionService$ActionHelperFactory
+-keep class * implements io.janet.HttpActionService$ActionHelperFactory
 #
 ## Annotation processor (compiler) classes should be ignored
 -dontwarn javax.servlet.**
@@ -11,7 +11,7 @@
 -dontwarn org.apache.velocity.**
 -dontwarn io.techery.janet.compiler.**
 -dontwarn io.techery.janet.validation.**
--dontwarn io.techery.janet.JanetHttpProcessor
--dontwarn io.techery.janet.HttpActionClass
--dontwarn io.techery.janet.HttpHelpersGenerator
+-dontwarn io.janet.JanetHttpProcessor
+-dontwarn io.janet.HttpActionClass
+-dontwarn io.janet.HttpHelpersGenerator
 -dontwarn io.techery.janet.HelpersFactoryGenerator
