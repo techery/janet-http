@@ -1,16 +1,16 @@
-## Http ActionService
-REST service for [Janet](https://github.com/techery/janet). Supports fully customizable requests, http-clients and converters.
+## HTTP ActionService
+The REST service for [Janet](https://github.com/techery/janet) supports fully customizable requests, HTTP clients and converters.
 
 ### Getting Started
-##### 1. Define service and add it to `Janet`
+##### 1. Define a service and add it to `Janet`
 ```java
 ActionService httpService = new HttpActionService(API_URL, new OkClient(), new GsonConverter(new Gson()))
 Janet janet = new Janet.Builder().addService(httpService).build();
 ```
 
-Service requires: End-point url, [HttpClient](clients) and [Converter](https://github.com/techery/janet-converters).
+Service requires: endpoint URL, [HttpClient](clients) and [Converter](https://github.com/techery/janet-converters).
  
-##### 2. Define Request-Response action class
+##### 2. Define a request/response action class
 ```java
 @HttpAction(value = "/demo", method = HttpAction.Method.GET)
 public class ExampleAction {
@@ -20,7 +20,7 @@ public class ExampleAction {
 Each action is an individual class that contains all information about the request and response.
 It must be annotated with `@HttpAction`
 
-##### 3. Use `ActionPipe` to send/observe action
+##### 3. Use `ActionPipe` to send/observe an action
 ```java
 ActionPipe<ExampleAction> actionPipe = janet.createPipe(ExampleAction.class);
 actionPipe
@@ -33,26 +33,26 @@ actionPipe
   );
 ```
 
-### Http Action Configuration
+### HTTP Action Configuration
 
-Request path, method and type are defined by `@HttpAction` annotation:
+The request path, method and type are defined by the `@HttpAction` annotation:
 * `value` –   url path
 * `method` –  get/post/put/delete/head/patch
 * `type` –    simple/multipart/form_url_encoded
 
-To configure request, Action fields can be annotated with:
-* `@Path` for path value
-* `@Url` rewrites full url or suffixes 
-* `@Query` for request URL parameters
-* `@Body` for POST request body
-* `@Field` for request fields if request type is `HttpAction.Type.FORM_URL_ENCODED`
+To configure requests, action fields can be annotated with:
+* `@Path` for a path value
+* `@Url` to rewrite full URLs or only URL suffixes 
+* `@Query` to request URL parameters
+* `@Body` for the POST request body
+* `@Field` for request fields if a request type is `HttpAction.Type.FORM_URL_ENCODED`
 * `@Part` for multipart request parts
 * `@RequestHeader` for request headers
 
-To process response, special annotations can be used:
-* `@Response` for getting response body.
-* `@Status` for getting response status. Field types `Integer`, `Long`, `int` or `long` can be used to get status code or use `boolean` to know that request was sent successfully
-* `@ResponseHeader` for getting response headers
+To process responses, special annotations can be used:
+* `@Response` to get the response body
+* `@Status` to get the response status. The field types `Integer`, `Long`, `int` or `long` can be used to get the status code. Alternatively, you can use `boolean` to learn if a request was sent successfully
+* `@ResponseHeader` to get response headers
 
 Example:
 ```java
@@ -73,13 +73,13 @@ public class ExampleAction {
 }
 ```
 
-### Advanced bits
-* supports request progress;
-* supports request cancelation;
-* provides useful `HttpException` for failed requests;
+### Advanced Bits
+* supports request progress
+* supports request cancelation
+* provides useful `HttpException` for failed requests
 * supports action inheritance 
 * based on annotation processing
-* consider using javac option `'-Ajanet.http.factory.class.suffix=MyLib'` for api libraries
+* consider using the javac option `'-Ajanet.http.factory.class.suffix=MyLib'` for API libraries
 
 ### Download
 ```groovy
@@ -116,7 +116,7 @@ dependencies {
 
 ### Notes
 `HttpActionService` is highly inspired by `Retrofit2` – thanks guys, it's awesome!
-We put our effort to make it even more flexible and reusable, so everyone who loves `Retrofit` and reactive approach should give it a try.
+We put our effort to make it even more flexible and reusable, so everyone who loves `Retrofit` and a reactive approach should give it a try.
 
 ## License
 
