@@ -8,7 +8,7 @@ ActionService httpService = new HttpActionService(API_URL, new OkClient(), new G
 Janet janet = new Janet.Builder().addService(httpService).build();
 ```
 
-Service requires: endpoint URL, [HttpClient](clients) and [Converter](https://github.com/techery/janet-converters).
+The service requires: endpoint URL, [HttpClient](clients) and [Converter](https://github.com/techery/janet-converters).
  
 ##### 2. Define a request/response action class
 ```java
