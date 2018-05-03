@@ -1,5 +1,5 @@
 ## Http ActionService
-REST service for [Janet](https://github.com/techery/janet). Supports fully customizable requests, http-clients and converters.
+REST service for [Janet](https://github.com/janet-io/janet). Supports fully customizable requests, http-clients and converters.
 
 ### Getting Started
 ##### 1. Define service and add it to `Janet`
@@ -8,7 +8,7 @@ ActionService httpService = new HttpActionService(API_URL, new OkClient(), new G
 Janet janet = new Janet.Builder().addService(httpService).build();
 ```
 
-Service requires: End-point url, [HttpClient](clients) and [Converter](https://github.com/techery/janet-converters).
+Service requires: End-point url, [HttpClient](clients) and [Converter](https://github.com/janet-io/janet-converters).
  
 ##### 2. Define Request-Response action class
 ```java
@@ -81,6 +81,9 @@ public class ExampleAction {
 * based on annotation processing
 * consider using javac option `'-Ajanet.http.factory.class.suffix=MyLib'` for api libraries
 
+### Kotlin support
+Kotlin action classes are supported except `internal` modifier. See [TestProgressAction](sample/src/main/java/io/janet/http/sample/action/TestProgressAction.kt) as example. 
+
 ### Download
 ```groovy
 repositories {
@@ -89,21 +92,21 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.techery.janet-http:service:xxx'
-    apt     'com.github.techery.janet-http:service-compiler:xxx'
-    compile 'com.github.techery.janet-http:client-okhttp:xxx'
-    compile 'com.github.techery.janet-converters:gson:yyy'
+    implementation 'com.github.janet-io.janet-http:service:xxx'
+    apt     'com.github.janet-io.janet-http:service-compiler:xxx'
+    implementation 'com.github.janet-io.janet-http:client-okhttp:xxx'
+    implementation 'com.github.janet-io.janet-converters:gson:yyy'
     // it is recommended you also explicitly depend on latest Janet version for bug fixes and new features.
-    compile 'com.github.techery:janet:zzz' 
+    implementation 'com.github.janet-io:janet:zzz' 
 }
 ```
-* janet: [![](https://jitpack.io/v/techery/janet.svg)](https://jitpack.io/#techery/janet)
-* janet-http: [![](https://jitpack.io/v/techery/janet-http.svg)](https://jitpack.io/#techery/janet-http)
-* janet-converters: [![](https://jitpack.io/v/techery/janet-converters.svg)](https://jitpack.io/#techery/janet-converters)
+* janet: [![](https://jitpack.io/v/janet-io/janet.svg)](https://jitpack.io/#janet-io/janet)
+* janet-http: [![](https://jitpack.io/v/janet-io/janet-http.svg)](https://jitpack.io/#janet-io/janet-http)
+* janet-converters: [![](https://jitpack.io/v/janet-io/janet-converters.svg)](https://jitpack.io/#janet-io/janet-converters)
 
 ### Recipes
 * Authorize requests via `ActionServiceWrapper`, e.g. [AuthWrapper](https://github.com/techery/janet-architecture-sample/blob/eff90f2f0a0013648263631a40bf3e76f7b9dfa2/app/src/main/java/io/techery/sample/service/AuthServiceWrapper.java)
-* Log requests via `HttpClient` or `ActionServiceWrapper`, e.g. [SampleLoggingService](sample/src/main/java/io/techery/janet/http/sample/util/SampleLoggingService.java)
+* Log requests via `HttpClient` or `ActionServiceWrapper`, e.g. [SampleLoggingService](sample/src/main/java/io/janet/http/sample/util/SampleLoggingService.java)
 * Convert `Retrofit` interfaces into actions with [Converter Util](https://github.com/techery/janet-retrofit-converter)
 * Write tests using `MockHttpActionService`
 * See more samples: 
@@ -120,7 +123,7 @@ We put our effort to make it even more flexible and reusable, so everyone who lo
 
 ## License
 
-    Copyright (c) 2016 Techery
+    Copyright (c) 2018 Techery
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
