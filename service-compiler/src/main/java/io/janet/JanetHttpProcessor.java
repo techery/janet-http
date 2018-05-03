@@ -27,6 +27,7 @@ import io.janet.HttpActionService.ActionHelperFactory;
 import io.janet.compiler.utils.validation.ClassValidator;
 import io.janet.compiler.utils.validation.ValidationError;
 import io.janet.http.annotations.HttpAction;
+import io.janet.util.ElementResolver;
 import io.janet.validation.HttpActionValidators;
 
 import static io.janet.HttpActionService.HELPERS_FACTORY_CLASS_PACKAGE;
@@ -63,12 +64,13 @@ public class JanetHttpProcessor extends AbstractProcessor {
         elementUtils = processingEnv.getElementUtils();
         messager = processingEnv.getMessager();
         typesUtil = processingEnv.getTypeUtils();
+        ElementResolver resolver = new ElementResolver(elementUtils);
         classValidator = new ClassValidator(HttpAction.class);
-        httpActionValidators = new HttpActionValidators();
+        httpActionValidators = new HttpActionValidators(resolver);
         Filer filer = processingEnv.getFiler();
 
         httpHelpersFactoryGenerator = new HttpHelpersFactoryGenerator(filer, findOtherHelpersFactories(), options);
-        httpHelpersGenerator = new HttpHelpersGenerator(filer);
+        httpHelpersGenerator = new HttpHelpersGenerator(filer, resolver);
     }
 
     @Override

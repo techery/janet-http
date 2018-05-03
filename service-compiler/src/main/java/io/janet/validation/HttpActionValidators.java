@@ -11,11 +11,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.janet.util.ElementResolver;
 import io.janet.HttpActionClass;
 import io.janet.body.ActionBody;
 import io.janet.body.BytesArrayBody;
 import io.janet.body.FileBody;
-import io.janet.compiler.utils.validation.FieldsModifiersValidator;
 import io.janet.compiler.utils.validation.ValidationError;
 import io.janet.compiler.utils.validation.Validator;
 import io.janet.http.annotations.Body;
@@ -32,10 +32,10 @@ public class HttpActionValidators implements Validator<HttpActionClass> {
 
     private final List<Validator<HttpActionClass>> validators;
 
-    public HttpActionValidators() {
+    public HttpActionValidators(ElementResolver resolver) {
         validators = new ArrayList<Validator<HttpActionClass>>();
         //general rules
-        validators.add(new FieldsModifiersValidator<HttpActionClass>());
+        validators.add(new FieldsModifiersValidator<HttpActionClass>(resolver));
         validators.add(new ParentsValidator());
         validators.add(new PathValidator());
         validators.add(new BodyValidator());
@@ -63,4 +63,5 @@ public class HttpActionValidators implements Validator<HttpActionClass> {
         }
         return errors;
     }
+
 }

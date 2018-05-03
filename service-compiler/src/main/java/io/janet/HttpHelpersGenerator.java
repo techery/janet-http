@@ -46,6 +46,7 @@ import io.janet.http.model.MultipartRequestBody;
 import io.janet.internal.TypeToken;
 import io.janet.compiler.utils.Generator;
 import io.janet.compiler.utils.TypeUtils;
+import io.janet.util.ElementResolver;
 
 
 public class HttpHelpersGenerator extends Generator<HttpActionClass> {
@@ -53,8 +54,9 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private static final String BASE_HEADERS_MAP = "headers";
     private static final String PARENT_HELPER_FIELD_NAME = "parent";
 
-    HttpHelpersGenerator(Filer filer) {
+    HttpHelpersGenerator(Filer filer, ElementResolver resolver) {
         super(filer);
+        this.resolver = resolver;
     }
 
     @Override
@@ -146,11 +148,12 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addRequestFields(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(Field.class)) {
             Field annotation = element.getAnnotation(Field.class);
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), element);
             CodeBlock codeBlock = CodeBlock.builder()
-                    .addStatement("requestBuilder.addField($S, action.$L)", annotation.value(), element)
+                    .addStatement("requestBuilder.addField($S, action.$L)", annotation.value(), accessibleFieldName)
                     .build();
             if (!TypeUtils.isPrimitive(element)) {
-                codeBlock = wrapFieldNotNull(codeBlock, element);
+                codeBlock = wrapFieldNotNull(codeBlock, accessibleFieldName);
             }
             builder.addCode(codeBlock);
         }
@@ -159,12 +162,13 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addRequestQueries(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(Query.class)) {
             Query annotation = element.getAnnotation(Query.class);
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), element);
             CodeBlock codeBlock = CodeBlock.builder().addStatement(
                     "requestBuilder.addQueryParam($S, action.$L, $L, $L)",
-                    annotation.value(), element, annotation.encodeName(), annotation.encodeValue()
+                    annotation.value(), accessibleFieldName, annotation.encodeName(), annotation.encodeValue()
             ).build();
             if (!TypeUtils.isPrimitive(element)) {
-                codeBlock = wrapFieldNotNull(codeBlock, element);
+                codeBlock = wrapFieldNotNull(codeBlock, accessibleFieldName);
             }
             builder.addCode(codeBlock);
         }
@@ -180,11 +184,12 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addRequestHeaders(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(RequestHeader.class)) {
             RequestHeader annotation = element.getAnnotation(RequestHeader.class);
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), element);
             CodeBlock codeBlock = CodeBlock.builder()
-                    .addStatement("requestBuilder.addHeader($S, String.valueOf(action.$L))", annotation.value(), element)
+                    .addStatement("requestBuilder.addHeader($S, String.valueOf(action.$L))", annotation.value(), accessibleFieldName)
                     .build();
             if (!TypeUtils.isPrimitive(element)) {
-                codeBlock = wrapFieldNotNull(codeBlock, element);
+                codeBlock = wrapFieldNotNull(codeBlock, accessibleFieldName);
             }
             builder.addCode(codeBlock);
         }
@@ -193,6 +198,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addPathParams(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(Path.class)) {
             Path param = element.getAnnotation(Path.class);
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), element);
             String path = param.value();
             String name = element.getSimpleName().toString();
             if (StringUtils.isEmpty(path)) {
@@ -200,10 +206,10 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
             }
             boolean encode = param.encode();
             CodeBlock codeBlock = CodeBlock.builder()
-                    .addStatement("requestBuilder.addPathParam($S, String.valueOf(action.$L), $L)", path, name, encode)
+                    .addStatement("requestBuilder.addPathParam($S, String.valueOf(action.$L), $L)", path, accessibleFieldName, encode)
                     .build();
             if (!TypeUtils.isPrimitive(element)) {
-                codeBlock = wrapFieldNotNull(codeBlock, element);
+                codeBlock = wrapFieldNotNull(codeBlock, accessibleFieldName);
             }
             builder.addCode(codeBlock);
         }
@@ -212,6 +218,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addParts(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(Part.class)) {
             Part part = element.getAnnotation(Part.class);
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), element);
             String partName = part.value();
             String name = element.getSimpleName().toString();
             if (StringUtils.isEmpty(partName)) {
@@ -223,29 +230,29 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
             CodeBlock.Builder codeBlock = CodeBlock.builder();
             if (TypeUtils.equalType(element, MultipartRequestBody.PartBody.class)) {
                 codeBlock.addStatement("$T $L = action.$L",
-                        MultipartRequestBody.PartBody.class, bodyFieldName, element
+                        MultipartRequestBody.PartBody.class, bodyFieldName, accessibleFieldName
                 );
             } else {
                 String actionBodyFieldName = "actionBody";
                 CodeBlock headerBlock = null;
                 if (TypeUtils.equalType(element, byte[].class)) {
                     codeBlock.addStatement("$T $L = new $T($S, action.$L)",
-                            ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, name);
+                            ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, accessibleFieldName);
                 } else if (TypeUtils.equalType(element, String.class)) {
                     codeBlock.addStatement("$T $L = new $T($S, action.$L.getBytes())",
-                            ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, name);
+                            ActionBody.class, actionBodyFieldName, BytesArrayBody.class, encode, accessibleFieldName);
                 } else if (TypeUtils.equalType(element, File.class)) {
-                    codeBlock.addStatement("$T $L = new $T($S, action.$L)", ActionBody.class, actionBodyFieldName, FileBody.class, encode, name);
+                    codeBlock.addStatement("$T $L = new $T($S, action.$L)", ActionBody.class, actionBodyFieldName, FileBody.class, encode, accessibleFieldName);
                     headerBlock = CodeBlock.builder()
-                            .add(".addHeader($S, action.$L.getName())", "filename", name)
+                            .add(".addHeader($S, action.$L.getName())", "filename", accessibleFieldName)
                             .build();
                 } else if (TypeUtils.equalType(element, FileBody.class)) {
-                    codeBlock.addStatement("$T $L = action.$L", ActionBody.class, actionBodyFieldName, name);
+                    codeBlock.addStatement("$T $L = action.$L", ActionBody.class, actionBodyFieldName, accessibleFieldName);
                     headerBlock = CodeBlock.builder()
-                            .add(".addHeader($S, action.$L.getFile().getName())", "filename", name)
+                            .add(".addHeader($S, action.$L.getFile().getName())", "filename", accessibleFieldName)
                             .build();
                 } else {
-                    codeBlock.addStatement("$T $L = action.$L", ActionBody.class, actionBodyFieldName, name);
+                    codeBlock.addStatement("$T $L = action.$L", ActionBody.class, actionBodyFieldName, accessibleFieldName);
                 }
                 codeBlock.add("$[");
                 codeBlock.add("$T $L = new $T().setBody($L)", MultipartRequestBody.PartBody.class, bodyFieldName, MultipartRequestBody.PartBody.Builder.class, actionBodyFieldName);
@@ -254,7 +261,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
                 codeBlock.add(";\n$]");
             }
             codeBlock.addStatement("requestBuilder.addPart($S, $S, $L)", partName, encode, bodyFieldName);
-            builder.addCode(wrapFieldNotNull(codeBlock.build(), element));
+            builder.addCode(wrapFieldNotNull(codeBlock.build(), accessibleFieldName));
         }
     }
 
@@ -316,17 +323,17 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addResponseStatements(HttpActionClass actionClass, MethodSpec.Builder builder, Element element) {
         String fieldAddress = getFieldAddress(actionClass, element);
         if (TypeUtils.equalType(element, ActionBody.class)) {
-            builder.addStatement(fieldAddress + " = response.getBody()", element);
+            builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element, "response.getBody()"));
         } else if (TypeUtils.equalType(element, String.class)) {
             builder
                     .beginControlFlow("try")
-                    .addStatement(fieldAddress + " = $T.convertToString(response.getBody().getContent())", element, StreamUtil.class)
+                    .addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element, "$T.convertToString(response.getBody().getContent())"), StreamUtil.class)
                     .nextControlFlow("catch($T e)", IOException.class)
                     .addStatement("throw $T.forDeserialization(e)", ConverterException.class)
                     .endControlFlow();
         } else {
-            builder.addStatement(fieldAddress + " = ($T) converter.fromBody(response.getBody(), new $T<$T>(){}.getType())",
-                    element, element.asType(), TypeToken.class, element.asType());
+            builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element, "($T) converter.fromBody(response.getBody(), new $T<$T>(){}.getType())"),
+                    element.asType(), TypeToken.class, element.asType());
         }
     }
 
@@ -339,7 +346,7 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
             ResponseHeader annotation = element.getAnnotation(ResponseHeader.class);
             String fieldAddress = getFieldAddress(actionClass, element);
             builder.beginControlFlow("if ($S.equals(header.getName()))", annotation.value());
-            builder.addStatement(fieldAddress + " = header.getValue()", element.toString());
+            builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element,"header.getValue()"));
             builder.endControlFlow();
         }
         builder.endControlFlow();
@@ -350,13 +357,13 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         for (Element element : actionClass.getAnnotatedElements(Status.class)) {
             String fieldAddress = getFieldAddress(actionClass, element);
             if (TypeUtils.containsType(element, Boolean.class, boolean.class)) {
-                builder.addStatement(fieldAddress + " = response.isSuccessful()", element);
+                builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element,"response.isSuccessful()"));
             } else if (TypeUtils.containsType(element, Integer.class, int.class, long.class)) {
-                builder.addStatement(fieldAddress + " = ($T) response.getStatus()", element, element.asType());
+                builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element,"($T) response.getStatus()"), element.asType());
             } else if (TypeUtils.equalType(element, String.class)) {
-                builder.addStatement(fieldAddress + " = Integer.toString(response.getStatus())", element);
+                builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element,"Integer.toString(response.getStatus())"));
             } else if (TypeUtils.containsType(element, Long.class)) {
-                builder.addStatement(fieldAddress + " = (long) response.getStatus()", element);
+                builder.addStatement(fieldAddress + resolver.resolveAccessibleFieldNameToWrite(actionClass.getTypeElement(), element,"(long) response.getStatus()"));
             }
         }
     }
@@ -364,16 +371,16 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private static String getFieldAddress(HttpActionClass actionClass, Element element) {
         String address;
         if (actionClass.getTypeElement().equals(element.getEnclosingElement())) {
-            address = "action.$L";
+            address = "action.";
         } else {
-            address = String.format("((%s)action).$L", element.getEnclosingElement());
+            address = String.format("((%s)action).", element.getEnclosingElement());
         }
         return address;
     }
 
-    private static CodeBlock wrapFieldNotNull(CodeBlock code, Element field) {
+    private static CodeBlock wrapFieldNotNull(CodeBlock code, String fieldName) {
         return CodeBlock.builder()
-                .beginControlFlow("if (action.$L != null)", field)
+                .beginControlFlow("if (action.$L != null)", fieldName)
                 .add(code)
                 .endControlFlow()
                 .build();
@@ -386,4 +393,6 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
         }
         return typeVariables;
     }
+
+    private final ElementResolver resolver;
 }
