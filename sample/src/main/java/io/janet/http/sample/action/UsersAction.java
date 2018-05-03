@@ -10,13 +10,13 @@ import io.janet.http.sample.action.base.BaseAction;
 import io.janet.http.sample.model.User;
 
 @HttpAction("/users")
-public class UsersAction extends BaseAction<ArrayList<User>> {
+public class UsersAction extends BaseAction {
 
     @Query("since") final int since = 0;
 
     @Response ArrayList<User> response;
 
-    @Override public ArrayList<User> getResponse() {
+    public ArrayList<User> getResponse() {
         return response;
     }
 

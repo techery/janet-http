@@ -10,7 +10,7 @@ import io.janet.http.sample.action.UsersAction
 import io.janet.okhttp3.OkClient
 import io.reactivex.Flowable
 
-const private val API_URL = "https://api.github.com"
+private const val API_URL = "https://api.github.com"
 
 
 fun main(args: Array<String>) {
@@ -24,12 +24,12 @@ fun main(args: Array<String>) {
 
     usersPipe.observeSuccess()
             .filter({ it.isSuccess() })
-            .subscribe({ println("received $it") }) { println(it) }
+            .subscribe({ println("received  $it") }) { println(it) }
 
     usersPipe.createObservable(UsersAction())
             .filter { it.action.isSuccess }
-            .flatMap { Flowable.fromIterable(it.action.getResponse()).take(1) }
-            .flatMap { userReposPipe.createObservable(UserReposAction(it.getLogin())) }
+            .flatMap { Flowable.fromIterable(it.action.response).take(1) }
+            .flatMap { userReposPipe.createObservable(UserReposAction(it.login)) }
             .subscribe(ActionStateSubscriber<UserReposAction>()
                     .onSuccess { println("repos request finished $it") }
                     .onFail { _, t -> println("repos request exception $t") }

@@ -10,7 +10,7 @@ import io.janet.http.sample.model.Repository;
 import io.janet.http.annotations.Response;
 
 @HttpAction("/users/{login}/repos")
-public class UserReposAction extends BaseAction<ArrayList<Repository>> {
+public class UserReposAction extends BaseAction {
 
     @Path("login") final String login;
 
@@ -18,10 +18,6 @@ public class UserReposAction extends BaseAction<ArrayList<Repository>> {
 
     public UserReposAction(String login) {
         this.login = login;
-    }
-
-    @Override public ArrayList<Repository> getResponse() {
-        return repositories;
     }
 
     @Override public String toString() {

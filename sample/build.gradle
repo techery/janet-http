@@ -1,4 +1,5 @@
 buildscript {
+    ext.kotlinVersion = "1.2.41"
     repositories {
         jcenter()
         maven {
@@ -6,15 +7,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.2'
-        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.11'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 apply plugin: 'application'
-apply plugin: 'kotlin'
 apply plugin: 'idea'
-apply plugin: 'net.ltgt.apt'
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -25,14 +25,14 @@ mainClassName = 'io.janet.http.sample.HttpSample'
 
 dependencies {
     implementation project(':service')
-    apt project(':service-compiler')
+    kapt project(':service-compiler')
     implementation project(':clients:client-okhttp3')
     implementation 'com.github.janet-io.janet-converters:gson:2.0.0'
     implementation 'com.google.code.gson:gson:2.8.0'
     //kotlin
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.1.2'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.1.2'
-    implementation 'io.reactivex:rxkotlin:0.40.+'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
 }
 
 
