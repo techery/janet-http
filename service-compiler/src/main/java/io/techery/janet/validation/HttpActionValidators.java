@@ -15,7 +15,6 @@ import io.techery.janet.HttpActionClass;
 import io.techery.janet.body.ActionBody;
 import io.techery.janet.body.BytesArrayBody;
 import io.techery.janet.body.FileBody;
-import io.techery.janet.compiler.utils.validation.FieldsModifiersValidator;
 import io.techery.janet.compiler.utils.validation.ValidationError;
 import io.techery.janet.compiler.utils.validation.Validator;
 import io.techery.janet.http.annotations.Body;
@@ -27,15 +26,16 @@ import io.techery.janet.http.annotations.Status;
 import io.techery.janet.http.annotations.Url;
 import io.techery.janet.http.model.FormUrlEncodedRequestBody;
 import io.techery.janet.http.model.MultipartRequestBody;
+import io.techery.janet.util.ElementResolver;
 
 public class HttpActionValidators implements Validator<HttpActionClass> {
 
     private final List<Validator<HttpActionClass>> validators;
 
-    public HttpActionValidators() {
+    public HttpActionValidators(ElementResolver resolver) {
         validators = new ArrayList<Validator<HttpActionClass>>();
         //general rules
-        validators.add(new FieldsModifiersValidator<HttpActionClass>());
+        validators.add(new FieldsModifiersValidator<HttpActionClass>(resolver));
         validators.add(new ParentsValidator());
         validators.add(new PathValidator());
         validators.add(new BodyValidator());
@@ -63,4 +63,5 @@ public class HttpActionValidators implements Validator<HttpActionClass> {
         }
         return errors;
     }
+
 }

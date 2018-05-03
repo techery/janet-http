@@ -10,7 +10,7 @@ import io.techery.janet.http.sample.action.base.BaseAction;
 import io.techery.janet.http.sample.model.Repository;
 
 @HttpAction("/users/{login}/repos")
-public class UserReposAction extends BaseAction<ArrayList<Repository>> {
+public class UserReposAction extends BaseAction {
 
     @Path("login") final String login;
 
@@ -20,7 +20,7 @@ public class UserReposAction extends BaseAction<ArrayList<Repository>> {
         this.login = login;
     }
 
-    @Override public ArrayList<Repository> getResponse() {
+    public ArrayList<Repository> getResponse() {
         return repositories;
     }
 

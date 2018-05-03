@@ -28,6 +28,7 @@ import io.techery.janet.compiler.utils.validation.ClassValidator;
 import io.techery.janet.compiler.utils.validation.ValidationError;
 import io.techery.janet.http.annotations.HttpAction;
 import io.techery.janet.validation.HttpActionValidators;
+import io.techery.janet.util.ElementResolver;
 
 import static io.techery.janet.HttpActionService.HELPERS_FACTORY_CLASS_PACKAGE;
 import static io.techery.janet.HttpActionService.HELPERS_FACTORY_CLASS_SIMPLE_NAME;
@@ -63,12 +64,13 @@ public class JanetHttpProcessor extends AbstractProcessor {
         elementUtils = processingEnv.getElementUtils();
         messager = processingEnv.getMessager();
         typesUtil = processingEnv.getTypeUtils();
+        ElementResolver resolver = new ElementResolver(elementUtils);
         classValidator = new ClassValidator(HttpAction.class);
-        httpActionValidators = new HttpActionValidators();
+        httpActionValidators = new HttpActionValidators(resolver);
         Filer filer = processingEnv.getFiler();
 
         httpHelpersFactoryGenerator = new HttpHelpersFactoryGenerator(filer, findOtherHelpersFactories(), options);
-        httpHelpersGenerator = new HttpHelpersGenerator(filer);
+        httpHelpersGenerator = new HttpHelpersGenerator(filer, resolver);
     }
 
     @Override
@@ -76,7 +78,8 @@ public class JanetHttpProcessor extends AbstractProcessor {
         return Collections.singleton("*");
     }
 
-    @Override public Set<String> getSupportedOptions() {
+    @Override
+    public Set<String> getSupportedOptions() {
         return Collections.singleton(Options.OPTION_FACTORY_CLASS_SUFFIX);
     }
 

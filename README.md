@@ -81,6 +81,9 @@ public class ExampleAction {
 * based on annotation processing
 * consider using javac option `'-Ajanet.http.factory.class.suffix=MyLib'` for api libraries
 
+### Kotlin support
+Kotlin action classes are supported except internal modifier. See [UsersAction](sample/src/main/java/io/techery/janet/http/sample/action/UsersAction.kt) as example.
+
 ### Download
 ```groovy
 repositories {
