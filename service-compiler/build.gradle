@@ -7,12 +7,12 @@ compileJava {
 }
 
 dependencies {
-    compile project(':service')
-    compile 'com.github.techery:janet-service-compiler-utils:1.0.1'
-    compile 'com.squareup:javapoet:1.1.0'
-    compile 'com.google.guava:guava:18.0'
-    compile 'com.google.auto.service:auto-service:1.0-rc2'
-    compile 'com.google.code.findbugs:jsr305:2.0.3'
-    compile 'org.apache.velocity:velocity:1.7'
-    compile 'org.ow2.asm:asm:4.1'
+    implementation project(':service')
+    implementation 'com.github.janet-io:janet-service-compiler-utils:2.0.0'
+    implementation 'com.squareup:javapoet:1.1.0'
+    implementation 'com.google.guava:guava:18.0'
+    implementation 'com.google.auto.service:auto-service:1.0-rc2'
+    implementation 'com.google.code.findbugs:jsr305:2.0.3'
+    implementation 'org.apache.velocity:velocity:1.7'
+    implementation 'org.ow2.asm:asm:4.1'
 }

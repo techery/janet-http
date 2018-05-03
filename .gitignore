@@ -38,6 +38,7 @@ proguard/
 .idea/*
 **/*/.idea
 !.idea/codeStyleSettings.xml
+!.idea/codeStyles
 .gradle
 */local.properties
 */out
