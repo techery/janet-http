@@ -131,7 +131,8 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
     private void addRequestUrl(HttpActionClass actionClass, MethodSpec.Builder builder) {
         List<Element> elements = actionClass.getAnnotatedElements(Url.class);
         if (!elements.isEmpty()) {
-            builder.addStatement("requestBuilder.setUrl(action.$L)", elements.get(0));
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), elements.get(0));
+            builder.addStatement("requestBuilder.setUrl(action.$L)", accessibleFieldName);
         }
     }
 
@@ -166,7 +167,8 @@ public class HttpHelpersGenerator extends Generator<HttpActionClass> {
 
     private void addRequestBody(HttpActionClass actionClass, MethodSpec.Builder builder) {
         for (Element element : actionClass.getAnnotatedElements(Body.class)) {
-            builder.addStatement("requestBuilder.setBody(action.$L)", element);
+            String accessibleFieldName = resolver.resolveAccessibleFieldNameToRead(actionClass.getTypeElement(), element);
+            builder.addStatement("requestBuilder.setBody(action.$L)", accessibleFieldName);
             break;
         }
     }
